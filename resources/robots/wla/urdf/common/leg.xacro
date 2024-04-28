@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/transmission.xacro" />
+
+  <xacro:macro name="leg" params="prefix left_right left_right_bool front_hind front_hind_bool">
+
+    <joint name="${prefix}_HAA" type="revolute">
+      <xacro:if value="${(front_hind_bool == True)}">
+        <origin
+          xyz="${HAA_offset_x_front*front_hind} ${HAA_offset_y*left_right} ${HAA_offset_z}"
+          rpy="0 0 0" />
+      </xacro:if>
+      <xacro:if value="${(front_hind_bool == False)}">
+        <origin
+          xyz="${HAA_offset_x_hind*front_hind} ${HAA_offset_y*left_right} ${HAA_offset_z}"
+          rpy="0 0 0" />
+      </xacro:if>
+      <parent link="base" />
+      <child link="${prefix}_hip" />
+      <axis xyz="1 0 0" />
+      <dynamics
+        damping="${damping}"
+        friction="${friction_joint}" />
+      <limit
+        effort="${hip_torque_max}"
+        velocity="${hip_velocity_max}"
+        lower="${hip_min}"
+        upper="${hip_max}" />
+    </joint>
+
+    <link name="${prefix}_hip">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://wheel_quadruped_arm_robot_description/meshes/$(arg robot_type)/${prefix}_hip.STL"
+            scale="1 1 1" />
+        </geometry>
+        <material name="orange" />
+        <color rgba="0.8902 0.8902 0.91373 1" />
+      </visual>
+      <!-- <collision>
+        <origin rpy="${pi/2.0} 0 0" xyz="0 0 0" />
+        <geometry>
+          <cylinder length="${hip_length}" radius="${hip_radius}" />
+        </geometry>
+      </collision> -->
+      <inertial>
+        <origin
+          xyz="${hip_com_x*front_hind} ${hip_com_y*left_right} ${hip_com_z}"
+          rpy="0 0 0" />
+        <mass value="${hip_mass}" />
+        <inertia
+          ixx="${hip_ixx}" ixy="${hip_ixy*left_right*front_hind}" ixz="${hip_ixz*front_hind}"
+          iyy="${hip_iyy}" iyz="${hip_iyz*left_right}"
+          izz="${hip_izz}" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_HFE" type="revolute">
+      <origin
+        xyz="${HFE_offset_x*front_hind} ${HFE_offset_y*left_right} ${HFE_offset_z}"
+        rpy="0 0 0" />
+      <parent link="${prefix}_hip" />
+      <child link="${prefix}_thigh" />
+      <axis xyz="0 1 0" />
+      <dynamics
+        damping="${damping}"
+        friction="${friction_joint}" />
+      <xacro:if value="${(front_hind_bool == True)}">
+        <limit
+          effort="${thigh_torque_max}"
+          velocity="${thigh_velocity_max}"
+          lower="${thigh_min}"
+          upper="${thigh_max}" />
+      </xacro:if>
+      <xacro:if value="${(front_hind_bool == False)}">
+        <limit
+          effort="${thigh_torque_max}"
+          velocity="${thigh_velocity_max}"
+          lower="${thigh_min}"
+          upper="${thigh_max}" />
+      </xacro:if>
+    </joint>
+
+    <link name="${prefix}_thigh">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://wheel_quadruped_arm_robot_description/meshes/$(arg robot_type)/${prefix}_thigh.STL"
+            scale="1 1 1" />
+        </geometry>
+        <material name="orange" />
+        <color rgba="0.8902 0.8902 0.91373 1" />
+      </visual>
+      <!-- <collision>
+        <origin rpy="0 ${pi/2.0+0.1} 0" xyz="${thigh_x_offset} 0 ${-thigh_length/2.0}" />
+        <geometry>
+          <box size="${thigh_length} ${thigh_width} ${thigh_height}" />
+        </geometry>
+      </collision> -->
+      <!-- <collision>
+        <origin rpy="${pi/2.0} 0 0" xyz="0 ${left_right*thigh_shoulder_y_offset} 0" />
+        <geometry>
+          <cylinder length="${thigh_shoulder_length}" radius="${thigh_shoulder_radius}" />
+        </geometry>
+      </collision> -->
+      <inertial>
+        <origin
+          xyz="${thigh_com_x} ${thigh_com_y*left_right} ${thigh_com_z}"
+          rpy="0 0 0" />
+        <mass value="${thigh_mass}" />
+        <inertia
+          ixx="${thigh_ixx}" ixy="${thigh_ixy*left_right}" ixz="${thigh_ixz}"
+          iyy="${thigh_iyy}" iyz="${thigh_iyz*left_right}"
+          izz="${thigh_izz}" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_KFE" type="revolute">
+      <origin
+        xyz="${KFE_offset_x} ${KFE_offset_y*left_right} ${KFE_offset_z}"
+        rpy="0 0 0" />
+      <parent link="${prefix}_thigh" />
+      <child link="${prefix}_calf" />
+      <axis xyz="0 1 0" />
+      <dynamics
+        damping="${damping}"
+        friction="${friction_joint}" />
+      <xacro:if value="${(front_hind_bool == True)}">
+        <limit
+          effort="${calf_torque_max}"
+          velocity="${calf_velocity_max}"
+          lower="${calf_min}"
+          upper="${calf_max}" />
+      </xacro:if>
+      <xacro:if value="${(front_hind_bool == False)}">
+        <limit
+          effort="${calf_torque_max}"
+          velocity="${calf_velocity_max}"
+          lower="${calf_min}"
+          upper="${calf_max}" />
+      </xacro:if>
+    </joint>
+
+    <link name="${prefix}_calf">
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://wheel_quadruped_arm_robot_description/meshes/$(arg robot_type)/${prefix}_calf.STL"
+            scale="1 1 1" />
+        </geometry>
+        <material name="orange" />
+        <color rgba="0.20392 0.20392 0.20392 1" />
+      </visual>
+      <collision>
+        <xacro:if value="${(front_hind_bool == True)}">
+          <origin
+            xyz="0.10876 0 -0.08805"
+            rpy="0 0.680678408 0" />
+        </xacro:if>
+        <xacro:if value="${(front_hind_bool == False)}">
+          <origin
+            xyz="0.10876 0 -0.08805"
+            rpy="0 0.680678408 0" />
+        </xacro:if>
+        <geometry>
+          <box size="${calf_length} ${calf_width} ${calf_height}" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin
+          xyz="${calf_com_x} ${calf_com_y*left_right} ${calf_com_z}"
+          rpy="0 0 0" />
+        <mass value="${calf_mass}" />
+        <inertia
+          ixx="${calf_ixx}" ixy="${calf_ixy*left_right}" ixz="${calf_ixz}"
+          iyy="${calf_iyy}" iyz="${calf_iyz*left_right}"
+          izz="${calf_izz}" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_WHL" type="revolute">
+      <origin
+        xyz="${WHL_offset_x} ${WHL_offset_y*left_right} ${WHL_offset_z}"
+        rpy="0 0 0" />
+      <parent link="${prefix}_calf" />
+      <child link="${prefix}_wheel" />
+      <axis xyz="0 1 0" />
+      <limit
+        effort="${wheel_torque_max}"
+        velocity="${wheel_velocity_max}"
+        lower="${wheel_min}"
+        upper="${wheel_max}" />
+      <dynamics friction="${friction_wheel}" />
+    </joint>
+
+    <!-- <gazebo reference="${prefix}_WHL">
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+    </gazebo> -->
+
+    <link name="${prefix}_wheel">
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://wheel_quadruped_arm_robot_description/meshes/$(arg robot_type)/${prefix}_wheel.STL"
+            scale="1 1 1" />
+        </geometry>
+        <material name="orange" />
+        <color rgba="0.69804 0.69804 0.69804 1" />
+      </visual>
+      <collision>
+        <origin
+          xyz="0 0 0"
+          rpy="${pi/2.0} 0 0" />
+        <geometry>
+          <cylinder
+            length="0.001"
+            radius="0.127" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin
+          xyz="${wheel_com_x} ${wheel_com_y*left_right} ${wheel_com_z}"
+          rpy="0 0 0" />
+        <mass value="${wheel_mass}" />
+        <inertia
+          ixx="${wheel_ixx}" ixy="${wheel_ixy*left_right}" ixz="${wheel_ixz}"
+          iyy="${wheel_iyy}" iyz="${wheel_iyz*left_right}"
+          izz="${wheel_izz}" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}_foot_fixed" type="fixed">
+      <parent link="${prefix}_wheel" />
+      <child link="${prefix}_foot" />
+      <origin
+        xyz="0 0 ${-(wheel_radius)}"
+        rpy="0 0 0" />
+    </joint>
+
+    <link name="${prefix}_foot">
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <sphere radius="0.03" />
+        </geometry>
+      </visual>
+    </link>
+
+    <gazebo reference="${prefix}_foot_fixed">
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+    </gazebo>
+
+    <xacro:leg_transmission name="${prefix}" />
+  </xacro:macro>
+</robot>

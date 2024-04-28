@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wheel_legged">
+
+  <xacro:arg name="robot_type" default="WL_P311E" />
+
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/materials.xacro" />
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/leg.xacro" />
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/gazebo.xacro" />
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/imu.xacro" />
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/const.xacro" />
+  <xacro:include filename="$(find wheel_quadruped_arm_robot_description)/urdf/common/base.xacro" />
+  
+  <xacro:Base />
+  <xacro:IMU connected_to="base" imu_name="limx_imu" xyz="0.0 0.0 0.0" rpy="0. 0. 0." />
+
+  <xacro:leg
+    prefix="LF"
+    left_right="1"
+    left_right_bool="True"
+    front_hind="1"
+    front_hind_bool="True">
+  </xacro:leg>
+
+  <xacro:leg
+    prefix="RF"
+    left_right="-1"
+    left_right_bool="False"
+    front_hind="1"
+    front_hind_bool="True">
+  </xacro:leg>
+
+  <xacro:leg
+    prefix="LH"
+    left_right="1"
+    left_right_bool="True"
+    front_hind="-1"
+    front_hind_bool="False">
+  </xacro:leg>
+
+  <xacro:leg
+    prefix="RH"
+    left_right="-1"
+    left_right_bool="False"
+    front_hind="-1"
+    front_hind_bool="False">
+  </xacro:leg>
+</robot>

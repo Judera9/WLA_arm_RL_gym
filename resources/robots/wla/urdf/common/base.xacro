@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="base">
+  <xacro:macro name="Base">
+    <link name="base">
+      <visual>
+        <origin
+          xyz="-0.0043 0 -0.03916"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://wheel_quadruped_arm_robot_description/meshes/$(arg robot_type)/trunk.STL"
+            scale="1 1 1" />
+        </geometry>
+        <material name="orange">
+          <color rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin
+          xyz="-0.0043 0 -0.03916"
+          rpy="0 0 0" />
+        <geometry>
+          <box size="${trunk_length} ${trunk_width} ${trunk_height}" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin
+          xyz="${trunk_com_x} ${trunk_com_y} ${trunk_com_z}"
+          rpy="0 0 0" />
+        <mass value="${trunk_mass}" />
+        <inertia
+          ixx="${trunk_ixx}" ixy="${trunk_ixy}" ixz="${trunk_ixz}"
+          iyy="${trunk_iyy}" iyz="${trunk_iyz}"
+          izz="${trunk_izz}" />
+      </inertial>
+    </link>
+    
+    <link name="world"/>
+    <joint name="fixed_base" type="fixed">
+      <parent link="world"/>
+      <child link="base"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <joint name="support_joint1" type="fixed">
+      <origin rpy="0. 0. 0." xyz="0.245 0.06 -0.18" />
+      <parent link="base" />
+      <child link="support1" />
+    </joint>
+    <link name="support1">
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <geometry>
+          <box size="0.015 0.015 0.004" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="support_joint2" type="fixed">
+      <origin rpy="0. 0. 0." xyz="-0.245 0.06 -0.18" />
+      <parent link="base" />
+      <child link="support2" />
+    </joint>
+    <link name="support2">
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <geometry>
+          <box size="0.015 0.015 0.004" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="support_joint3" type="fixed">
+      <origin rpy="0. 0. 0." xyz="0.245 -0.06 -0.18" />
+      <parent link="base" />
+      <child link="support3" />
+    </joint>
+    <link name="support3">
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <geometry>
+          <box size="0.015 0.015 0.004" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="support_joint4" type="fixed">
+      <origin rpy="0. 0. 0." xyz="-0.245 -0.06 -0.18" />
+      <parent link="base" />
+      <child link="support4" />
+    </joint>
+    <link name="support4">
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0" />
+        <geometry>
+          <box size="0.015 0.015 0.004" />
+        </geometry>
+      </collision>
+    </link>
+
+  </xacro:macro>
+</robot>

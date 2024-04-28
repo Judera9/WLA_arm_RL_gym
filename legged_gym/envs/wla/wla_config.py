@@ -5,13 +5,13 @@ class WLARoughCfg(LeggedRobotCfg):
     class env(LeggedRobotCfg.env):
         num_envs = 4096  # 4096
         # arm joints position/velocity, end effector position/orientation
-        num_observations = 18  # TODO
+        num_observations = 21  # TODO
         # 6d-pose
         num_actions = 6
     
     class commands( LeggedRobotCfg ):
         num_commands = 3 # TODO
-        resampling_time = 10. # time before command are changed[s]
+        resampling_time = 5. # time before command are changed[s]
         curriculum = False # TODO
         heading_command = False # if true: compute ang vel command from heading error
         class ranges: # TODO

@@ -40,6 +40,7 @@ from .cassie.cassie_config import CassieRoughCfg, CassieRoughCfgPPO
 from .a1.a1_config import A1RoughCfg, A1RoughCfgPPO
 from .wla.wla_config import WLARoughCfg, WLARoughCfgPPO
 from .wla.wla_robot import WLA
+from .wla.wla_config_t import WLAFlatCfg_t, WLAFlatCfgPPO_t
 
 
 import os
@@ -52,3 +53,4 @@ task_registry.register( "anymal_b", Anymal, AnymalBRoughCfg(), AnymalBRoughCfgPP
 task_registry.register( "a1", LeggedRobot, A1RoughCfg(), A1RoughCfgPPO() )
 task_registry.register( "cassie", Cassie, CassieRoughCfg(), CassieRoughCfgPPO() )
 task_registry.register( "wla", WLA, WLARoughCfg(), WLARoughCfgPPO() )
+task_registry.register( "wla_t", WLA, WLAFlatCfg_t(), WLAFlatCfgPPO_t() )

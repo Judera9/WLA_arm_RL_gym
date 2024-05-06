@@ -238,6 +238,16 @@ class WLA(LeggedRobot):
                 ),
                 dim=-1,
             )
+            
+        # add privilige observations
+        if self.cfg.env.num_privileged_obs is not None:
+            pass
+            self.privileged_obs_buf = torch.cat(
+                (
+                    self.friction_coeffs.view(self.num_envs, 1),
+                ),
+                dim=-1,
+            )
 
         # add perceptive inputs if not blind
         if self.cfg.terrain.measure_heights:
@@ -309,7 +319,7 @@ class WLA(LeggedRobot):
         actions_scaled = actions * self.cfg.control.action_scale
         control_type = self.cfg.control.control_type
         if control_type=="P":
-            torques = self.p_gains*(actions_scaled + self.default_dof_pos - self.dof_pos) - self.d_gains*self.dof_vel
+            torques = self.p_gains*(actions_scaled + self.default_dof_pos - self.dof_pos) - self.d_gains * self.dof_vel
             # arm_pos = torch.clip(self.arm_u, self.dof_pos_limits[:, 6:, 0], self.dof_pos_limits[:, 6:, 1])
         elif control_type=="V":
             torques = self.p_gains*(actions_scaled - self.dof_vel) - self.d_gains*(self.dof_vel - self.last_dof_vel)/self.sim_params.dt
@@ -617,6 +627,44 @@ class WLA(LeggedRobot):
         self.termination_contact_indices = torch.zeros(len(termination_contact_names), dtype=torch.long, device=self.device, requires_grad=False)
         for i in range(len(termination_contact_names)):
             self.termination_contact_indices[i] = self.gym.find_actor_rigid_body_handle(self.envs[0], self.actor_handles[0], termination_contact_names[i])
+
+    def _process_dof_props(self, props, env_id):
+        """Callback allowing to store/change/randomize the DOF properties of each environment.
+        Called During environment creation.
+        Base behavior: stores position, velocity and torques limits defined in the URDF
+
+        Args:
+        props (numpy.array): Properties of each DOF of the asset
+        env_id (int): Environment id
+
+        Returns:
+        [numpy.array]: Modified DOF properties
+        """
+        if env_id == 0:
+            self.dof_pos_limits = torch.zeros(self.num_dof, 2, dtype=torch.float, device=self.device,
+                                            requires_grad=False)
+            self.dof_vel_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
+            self.torque_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
+            for i in range(len(props)):
+                self.dof_pos_limits[i, 0] = props["lower"][i].item()
+                self.dof_pos_limits[i, 1] = props["upper"][i].item()
+                self.dof_vel_limits[i] = props["velocity"][i].item()
+                self.torque_limits[i] = props["effort"][i].item()
+                # soft limits
+                m = (self.dof_pos_limits[i, 0] + self.dof_pos_limits[i, 1]) / 2
+                r = self.dof_pos_limits[i, 1] - self.dof_pos_limits[i, 0]
+                self.dof_pos_limits[i, 0] = (m - 0.5 * r * self.cfg.rewards.soft_dof_pos_limit)
+                self.dof_pos_limits[i, 1] = (m + 0.5 * r * self.cfg.rewards.soft_dof_pos_limit)
+        friction_dof_range = self.cfg.domain_rand.friction_dof_range
+        damping_dof_range = self.cfg.domain_rand.damping_dof_range
+        for s in range(len(props)):
+            if self.cfg.domain_rand.randomize_dof_friction:
+                friction = torch_rand_float(friction_dof_range[0], friction_dof_range[1], (1, 1), device='cpu').item()
+                props["friction"][s] = friction
+            if self.cfg.domain_rand.randomize_dof_damping:
+                damping = torch_rand_float(damping_dof_range[0], damping_dof_range[1], (1, 1), device='cpu').item()
+                props["damping"][s] = damping
+        return props
 
     # ------------ reward functions----------------
     def _reward_termination(self):

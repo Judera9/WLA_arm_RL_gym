@@ -8,16 +8,17 @@ class WLARoughCfg(LeggedRobotCfg):
         num_observations = 21  # TODO
         # 6d-pose
         num_actions = 6
-    
-    class commands( LeggedRobotCfg ):
-        num_commands = 3 # TODO
-        resampling_time = 5. # time before command are changed[s]
-        curriculum = False # TODO
-        heading_command = False # if true: compute ang vel command from heading error
-        class ranges: # TODO
-            obj_pos_x=[-0.1, 0.1]
-            obj_pos_y=[-0.3, 0.3]
-            obj_pos_z=[-0.2, 0.1]
+
+    class commands(LeggedRobotCfg.commands):
+        num_commands = 3  # TODO
+        resampling_time = 5.0  # time before command are changed[s]
+        curriculum = False  # TODO
+        heading_command = False  # if true: compute ang vel command from heading error
+
+        class ranges:  # TODO
+            obj_pos_x = [-0.1, 0.1]
+            obj_pos_y = [-0.3, 0.3]
+            obj_pos_z = [-0.2, 0.1]
 
     class terrain(LeggedRobotCfg.terrain):
         mesh_type = "plane"  # "heightfield" # none, plane, heightfield or trimesh
@@ -35,7 +36,7 @@ class WLARoughCfg(LeggedRobotCfg):
         }  # TODO: initial angles
 
     class control(LeggedRobotCfg.control):
-        control_type = "P" # TODO # arm_control_type='position'
+        control_type = "P"  # TODO # arm_control_type='position'
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25
         # decimation: Number of control action updates @ sim DT per policy DT
@@ -80,30 +81,31 @@ class WLARoughCfg(LeggedRobotCfg):
             lin_vel_z = -0
             ang_vel_xy = -0
             orientation = -0
-            torques = -0.0001 # minimize torques
+            torques = -0.0001  # minimize torques
             dof_vel = -2.5e-5
             dof_acc = -2.5e-7
-            base_height = -0. 
-            feet_air_time =  0
-            collision = -1. # penalize collision
+            base_height = -0.0
+            feet_air_time = 0
+            collision = -1.0  # penalize collision
             feet_stumble = -0
             action_rate = -0
             stand_still = -0
 
             # TODO: added rewards
-            arm_pos = -0 # TODO
+            arm_pos = -0  # TODO
             object_distance = 2
 
         only_positive_rewards = True
-        object_sigma = 0.4 # TODO
+        object_sigma = 0.4  # TODO
 
     class goal_ee:
         init_local_cube_object_pos = [0.45, 0, 0.9]
 
-    class noise: # TODO
+    class noise(LeggedRobotCfg.noise):  # TODO
         add_noise = False
-        noise_level = 1.0 # scales other values
-        class noise_scales:
+        noise_level = 1.0  # scales other values
+
+        class noise_scales(LeggedRobotCfg.noise.noise_scales):
             dof_pos = 0.01
             dof_vel = 1.5
             lin_vel = 0.1
@@ -111,14 +113,14 @@ class WLARoughCfg(LeggedRobotCfg):
             gravity = 0.05
             height_measurements = 0.1
 
-    class domain_rand:
+    class domain_rand(LeggedRobotCfg.domain_rand):
         push_robots = False
         randomize_friction = False
         friction_range = [0.5, 1.25]
         randomize_base_mass = False
-        added_mass_range = [-1., 1.]
+        added_mass_range = [-1.0, 1.0]
         push_interval_s = 15
-        max_push_vel_xy = 1.
+        max_push_vel_xy = 1.0
 
     # TODO： overwrite child class ?
     # class normalization:
@@ -130,6 +132,7 @@ class WLARoughCfg(LeggedRobotCfg):
     #         height_measurements = 5.0
     #     clip_observations = 100.
     #     clip_actions = 100.
+
 
 class WLARoughCfgPPO(LeggedRobotCfgPPO):
     class runner(LeggedRobotCfgPPO.runner):
